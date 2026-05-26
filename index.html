@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de XP - Proyectos EBI</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 30px 15px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-section {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .control-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .control-section:first-child {
+            padding-top: 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input, select, button {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #0f172a;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        input { flex: 1; min-width: 200px; }
+        select { flex: 1; min-width: 180px; }
+
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--primary);
+            border: none;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button.btn-success { background-color: var(--success); }
+        button.btn-danger { background-color: var(--danger); }
+        button.btn-warning { background-color: var(--warning); color: #0f172a; }
+        button.btn-secondary { background-color: #475569; }
+        
+        /* Estilo especial destacado para los botones de PC */
+        button.btn-pc { 
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: 1px solid #818cf8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), 0 0 15px var(--primary-glow);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            word-break: break-word;
+            max-width: 80%;
+        }
+
+        .btn-delete-card {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        .btn-delete-card:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .xp-badge {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #38bdf8;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+            margin: 10px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .level-badge {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #0f172a;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #3b82f6, #10b981);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Panel de Gamificación - EBI</h1>
+    
+    <div class="controls">
+        <div class="control-section">
+            <h3>💾 Almacenamiento y Archivos</h3>
+            <div class="control-group">
+                <button onclick="descargarRespaldo()" class="btn-pc">📥 Guardar Datos en la PC</button>
+                <input type="file" id="importFile" onchange="importarRespaldo()" style="display:none" accept=".json">
+                <button onclick="document.getElementById('importFile').click()" class="btn-pc">📤 Cargar Datos desde la PC</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>👥 Registro</h3>
+            <div class="control-group">
+                <input type="text" id="nuevoEquipo" placeholder="Nombre del nuevo equipo u/o proyecto">
+                <button onclick="agregarEquipo()">Crear Equipo</button>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h3>🏆 Asignación de Hitos (Docente)</h3>
+            <div class="control-group">
+                <select id="selectEquipoGana"></select>
+                <select id="selectHito">
+                    <option value="50">Bitácora / Informe (+50 XP)</option>
+                    <option value="100">Prototipo Alfa / MVP (+100 XP)</option>
+                    <option value="75">Presentación / Pitch (+75 XP)</option>
+                    <option value="50">Iteración por Feedback (+50 XP)</option>
+                    <option value="30">Resolución conflicto técnico (+30 XP)</option>
+                    <option value="-25">Falta de orden / Penalización (-25 XP)</option>
+                </select>
+                <button onclick="asignarXP()" class="btn-success">Asignar XP</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>🛒 Tienda de Habilidades (Acciones de Equipos)</h3>
+            <div class="control-group">
+                <select id="selectEquipoGasta" onchange="actualizarSelectObjetivo()"></select>
+                <select id="selectAccion" onchange="toggleObjetivo()"></select>
+                <select id="selectEquipoObjetivo" style="display: none;"></select>
+                <button onclick="ejecutarAccion()" class="btn-warning">Ejecutar Acción</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tablero" class="grid"></div>
+</div>
+
+<script>
+    // Carga inicial automática desde la memoria de la PC
+    let equipos = JSON.parse(localStorage.getItem('datosEquiposEBI')) || [
+        { nombre: "Robotizadores", xp: 150 },
+        { nombre: "EcoMakers", xp: 200 }
+    ];
+
+    const XP_POR_NIVEL = 200;
+
+    const ACCIONES = {
+        salvar: { nombre: "Salvar un compañero (-50 XP)", costo: 50, requiereObjetivo: false },
+        tiempo: { nombre: "Pedir más tiempo en entrega (-75 XP)", costo: 75, requiereObjetivo: false },
+        restar: { nombre: "Restar puntos a un rival (-50 XP al rival / Costo: 0 XP)", costo: 0, requiereObjetivo: true, penalizacion: 50 }
+    };
+
+    function calcularNivel(xp) {
+        if (xp < 0) return 1;
+        return Math.floor(xp / XP_POR_NIVEL) + 1;
+    }
+
+    function calcularProgresoNivel(xp) {
+        if (xp < 0) return 0;
+        return ((xp % XP_POR_NIVEL) / XP_POR_NIVEL) * 100;
+    }
+
+    function inicializarSelectAcciones() {
+        const selectAccion = document.getElementById('selectAccion');
+        selectAccion.innerHTML = '';
+        for (const key in ACCIONES) {
+            selectAccion.innerHTML += `<option value="${key}">${ACCIONES[key].nombre}</option>`;
+        }
+    }
+
+    function toggleObjetivo() {
+        const accionClave = document.getElementById('selectAccion').value;
+        const selectObjetivo = document.getElementById('selectEquipoObjetivo');
+        
+        if (ACCIONES[accionClave].requiereObjetivo) {
+            selectObjetivo.style.display = 'inline-block';
+            actualizarSelectObjetivo();
+        } else {
+            selectObjetivo.style.display = 'none';
+        }
+    }
+
+    function actualizarSelectObjetivo() {
+        const idxGasta = parseInt(document.getElementById('selectEquipoGasta').value);
+        const selectObjetivo = document.getElementById('selectEquipoObjetivo');
+        selectObjetivo.innerHTML = '';
+
+        equipos.forEach((equipo, indice) => {
+            if (indice !== idxGasta) {
+                selectObjetivo.innerHTML += `<option value="${indice}">Al equipo: ${equipo.nombre}</option>`;
+            }
+        });
+    }
+
+    function actualizarInterfaz() {
+        const tablero = document.getElementById('tablero');
+        const selectGana = document.getElementById('selectEquipoGana');
+        const selectGasta = document.getElementById('selectEquipoGasta');
+        
+        tablero.innerHTML = '';
+        selectGana.innerHTML = '';
+        selectGasta.innerHTML = '';
+
+        if (equipos.length === 0) {
+            tablero.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No hay equipos registrados.</p>`;
+            selectGana.innerHTML = `<option value="">No hay equipos</option>`;
+            selectGasta.innerHTML = `<option value="">No hay equipos</option>`;
+            localStorage.setItem('datosEquiposEBI', JSON.stringify(equipos));
+            return;
+        }
+
+        equipos.forEach((equipo, indice) => {
+            const nivel = calcularNivel(equipo.xp);
+            const progreso = calcularProgresoNivel(equipo.xp);
+            
+            tablero.innerHTML += `
+                <div class="card">
+                    <div>
+                        <div class="card-header">
+                            <h3>${equipo.nombre}</h3>
+                            <button class="btn-delete-card" onclick="eliminarEquipo(${indice})" title="Eliminar equipo">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <div class="xp-badge">${equipo.xp} XP</div>
+                    </div>
+                    <div>
+                        <div class="level-badge">Nivel ${nivel}</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${progreso}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            selectGana.innerHTML += `<option value="${indice}">${equipo.nombre}</option>`;
+            selectGasta.innerHTML += `<option value="${indice}">${equipo.nombre}</option>`;
+        });
+
+        // Guarda automáticamente en la memoria interna del navegador de esta PC
+        localStorage.setItem('datosEquiposEBI', JSON.stringify(equipos));
+        actualizarSelectObjetivo();
+    }
+
+    function agregarEquipo() {
+        const input = document.getElementById('nuevoEquipo');
+        const nombre = input.value.trim();
+        if (nombre) {
+            equipos.push({ nombre: nombre, xp: 0 });
+            input.value = '';
+            actualizarInterfaz();
+            toggleObjetivo();
+        }
+    }
+
+    function eliminarEquipo(indice) {
+        if (confirm(`¿Confirmas la eliminación del equipo "${equipos[indice].nombre}"?`)) {
+            equipos.splice(indice, 1);
+            actualizarInterfaz();
+            toggleObjetivo();
+        }
+    }
+
+    function asignarXP() {
+        const el = document.getElementById('selectEquipoGana');
+        const hito = document.getElementById('selectHito');
+        if (el.value !== "" && equipos.length > 0) {
+            const indice = parseInt(el.value);
+            const puntos = parseInt(hito.value);
+            equipos[indice].xp += puntos;
+            actualizarInterfaz();
+        }
+    }
+
+    function ejecutarAccion() {
+        const idxGasta = parseInt(document.getElementById('selectEquipoGasta').value);
+        const accionClave = document.getElementById('selectAccion').value;
+        const configAccion = ACCIONES[accionClave];
+
+        if (isNaN(idxGasta) || equipos.length === 0) return;
+
+        const equipoComprador = equipos[idxGasta];
+
+        if (equipoComprador.xp < configAccion.costo) {
+            alert(`El equipo "${equipoComprador.nombre}" no tiene suficiente XP. Requiere ${configAccion.costo} XP (Posee ${equipoComprador.xp} XP).`);
+            return;
+        }
+
+        if (configAccion.requiereObjetivo) {
+            const idxObjetivo = parseInt(document.getElementById('selectEquipoObjetivo').value);
+            if (isNaN(idxObjetivo)) {
+                alert("Debes seleccionar un equipo objetivo válido.");
+                return;
+            }
+            
+            if (confirm(`¿Confirmas que "${equipoComprador.nombre}" restará ${configAccion.penalizacion} XP a "${equipos[idxObjetivo].nombre}" sin perder puntos propios?`)) {
+                equipoComprador.xp -= configAccion.costo;
+                equipos[idxObjetivo].xp -= configAccion.penalizacion;
+                if (equipos[idxObjetivo].xp < 0) equipos[idxObjetivo].xp = 0;
+            }
+        } else {
+            if (confirm(`¿Confirmas el gasto de ${configAccion.costo} XP de "${equipoComprador.nombre}" para ejecutar esta acción?`)) {
+                equipoComprador.xp -= configAccion.costo;
+            }
+        }
+
+        actualizarInterfaz();
+    }
+
+    // FUNCIÓN PARA GUARDAR EN LA PC (Descarga un archivo JSON)
+    function descargarRespaldo() {
+        if (equipos.length === 0) {
+            alert("No hay datos para guardar.");
+            return;
+        }
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(equipos));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "datos_proyectos_xp.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    // FUNCIÓN PARA CARGAR DESDE LA PC (Lee el archivo JSON subido)
+    function importarRespaldo() {
+        const fileInput = document.getElementById('importFile');
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const datos = JSON.parse(e.target.result);
+                if (Array.isArray(datos)) {
+                    if (confirm("¿Estás seguro de cargar estos datos? Se sobrescribirá el progreso actual en pantalla.")) {
+                        equipos = datos;
+                        actualizarInterfaz();
+                        toggleObjetivo();
+                        alert("¡Datos cargados con éxito!");
+                    }
+                } else {
+                    alert("El archivo no tiene el formato correcto.");
+                }
+            } catch (err) {
+                alert("Error al leer el archivo. Asegúrate de seleccionar el archivo .json correcto.");
+            }
+            // Limpia el input para permitir cargar el mismo archivo consecutivamente si fuera necesario
+            fileInput.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    // Inicialización del script
+    inicializarSelectAcciones();
+    actualizarInterfaz();
+    toggleObjetivo();
+</script>
+
+</body>
+</html>
